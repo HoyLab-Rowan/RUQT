@@ -1,0 +1,63 @@
+Init: Collects data from file to create a molecule in code
+
+INIT fileName fileType moleculeName
+
+do not include any special characters except _ in moleculeName,
+and no spaces. The moleculeName is arbitrary, but must remain
+consistent. Only filetype available is xyz. 
+
+Example: INIT benzene.xyz xyz ben
+
+----------------------------------------------------------------
+
+Print: Prints out current coordinates of molecule in code
+
+PRINT filename fileType moleculeName
+
+The molecule name must be exactly the way it was Initiated
+It is reccomended to choose a new file name to keep the original
+geometry. fileTypes available are xyz and gamess
+
+Example: INIT benzene.xyz xyz ben
+
+----------------------------------------------------------------
+
+Sort:
+
+SORT moleculeName axis
+
+Changes the order of atoms in code to be organized by spatial
+arrangements. Very handy when a command triggers a display.
+
+Example: SORT ben x
+----------------------------------------------------------------
+
+Align:
+
+ALIGN moleculeName axis
+
+Translates and rotates molecule until the first atom is 0,0,0
+and the second atom intersects the desired axis. Triggers a
+display, for additional input during program.
+----------------------------------------------------------------
+
+Device Switch:
+DEVICE_SWITCH moleculeName angularDisplacement angularIncrement
+
+Rotates a desired bond in the molecule for analysis of different
+conformations. The angular Displacement represents how much the
+is rotated in total, and the angular Increment is the difference
+the dihedral angle changes with each molecule. This function
+prints results without the PRINT command.
+
+----------------------------------------------------------------
+
+Electrode Family:
+
+???_ELEC moleculeName
+
+The ??? that preceeds _ELEC depends on the desired electrode.
+Prefixes include: HR "Hydrogen Replaced", L "Linear",
+TSQ "Tip SQuare", PYR "PYRamid".
+This input type only requires the moleculeName, then requests
+the additional input later. 
