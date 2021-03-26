@@ -1,0 +1,50 @@
+ Just getting started
+ Input File Read
+ Using the following parameters for the transport calculation
+ Number of OpenMP Threads:           1
+ Number of  Molecular and Atomic Orbitals:         186         186
+ Number of Active Orbitals:         186
+ Number of Occupied Orbitals:          71
+ Number of Virtual Orbitals:         115
+ Orbitals in left electrode:          48
+ Orbitals in device region:          90
+ Orbitals in right electrode:          48
+ Transmission Energy Window(eV) and dE:  -15.0000000000000     
+   5.00000000000000       0.100000000000000     
+ Voltage Window and dV:  0.000000000000000E+000  0.200000000000000     
+  0.100000000000000     
+ Fermi Density:  7.000000000000001E-002  7.000000000000001E-002
+ KT:  1.070000000000000E-009
+ Start Htwo
+ Get ECP
+ No removal of ECP
+ H_Two       34596
+ Smat       34596
+ Done Getting HF Values from GAMESS
+ Using GAMESS data for this run
+ This run using:
+ The Lehmann representation of a
+ p2-RDM Greens function
+ Starting Metal WBL calculation
+ Done partitioning S Matrix
+ Done partitioning Fock Matrix
+ Getting Electrodes
+ alloc l done
+ l done
+ Sigma Calculated
+ Starting Current Calculation
+ GAMESS version does not work with frozen orbitals.
+ Do not use any frozen or core orbitals. ECP only.
+ Total Number of T2(ab) and T2(aa) Elements
+ 133342615                               
+ Number of T2(ab) and T1(a) Values in T2 file   133342615
+ Using CEPA conventation for B0
+ Reading MO info
+ Correlation Energy -0.885230590603000     
+ Done with current at voltage:  0.000000000000000E+000
+ Done with current at voltage:  0.100000000000000     
+ Done with current at voltage:  0.200000000000000     
+ IV curve  0.000000000000000E+000  0.0000000E+00
+ IV curve  0.100000000000000       1.2913945E-09
+ IV curve  0.200000000000000       1.6625801E-09
+ CPU Time:   31239.8292560000     

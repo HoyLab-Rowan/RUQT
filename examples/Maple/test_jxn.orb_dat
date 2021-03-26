@@ -1,0 +1,45 @@
+Orbital Numbers for NEGF Transport Calculations
+Basis Set Used: 321g
+Total Orbitals: 35
+Occupied Orbitals: 16
+Unoccupied(Virtual) Orbitals: 19
+Orbitals in Left Electrode(size_l): 13
+Orbitals in Transport Region(size_c): 9
+Orbitals in Right Electrode(size_r): 13
+
+Atomic Orbital Labels & Populations from Atom 0
+0 Al 1s 1.999286
+0 Al 2s 1.991503
+0 Al 3s 0.947745
+0 Al 4s 1.017857
+0 Al 2px 1.959307
+0 Al 2py 1.953807
+0 Al 2pz 1.954733
+0 Al 3px 0.275204
+0 Al 3py 0.051405
+0 Al 3pz 0.078137
+0 Al 4px 0.381329
+0 Al 4py -0.004071
+0 Al 4pz 0.135010
+1 C 1s 1.989692
+1 C 2s 0.429123
+1 C 3s 1.477815
+1 C 2px 0.317031
+1 C 2py 0.004316
+1 C 2pz 0.631777
+1 C 3px 0.641875
+1 C 3py 0.006971
+1 C 3pz 1.018891
+2 Al 1s 1.999286
+2 Al 2s 1.991503
+2 Al 3s 0.947745
+2 Al 4s 1.017857
+2 Al 2px 1.959307
+2 Al 2py 1.953807
+2 Al 2pz 1.954733
+2 Al 3px 0.275204
+2 Al 3py 0.051405
+2 Al 3pz 0.078137
+2 Al 4px 0.381329
+2 Al 4py -0.004071
+2 Al 4pz 0.135010
