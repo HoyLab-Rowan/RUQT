@@ -101,7 +101,7 @@ void Transform::ConvertCoord(Molecule& examMole, char fromType, char toType)
 
 
 void Transform::CoordEdit(Molecule& examMole, double xTrans, double yTrans, double zTrans)
-{
+{//Also used to edit cylindrical coordinates
 	double tempXcoord, tempYcoord, tempZcoord;
 	for(int i=0; i<examMole.GetAtomCount(); i++)
 	{

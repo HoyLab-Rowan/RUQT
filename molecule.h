@@ -11,11 +11,11 @@ class Molecule
 		std::string atomSym;	
 		double coord[3];
 	};
-	std::vector<atom> atomVec;
-	void SwapStruct(atom&, atom&);
-	double GetAtomNum(std::string);
+	std::vector<atom> atomVec; //Lists all the atoms in no specified order (from file)
+	void SwapStruct(atom&, atom&); //swap position of two atoms in previous vector ^
+	double GetAtomNum(std::string); //Gets atomic number of atom
 public:
-	void Initiate(std::string, std::string);
+	void Initiate(std::string, std::string); //
 	void PrintInfo(std::string, std::string);
 	void SetAtomCoord(int,char,double);
 	void SetAtomSym(int, std::string);

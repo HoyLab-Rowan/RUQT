@@ -12,9 +12,11 @@ class Electrode
 	void JuncLocate(Molecule&,int&,int&);
 	int NearestH(Molecule&,int,char);
 public:
-	void LinearElectrode(Molecule&,int,std::string,int *,double,double);
+	void LinearElectrode(Molecule&,int,std::string,int *,double,double,bool);
 	void HydroRepElectrode(Molecule&,int,std::string,int *,double,double);
 	void TipSquareElectrode(Molecule&,std::string,int *,double,double);
 	void PyramidElectrode(Molecule&,int,std::string,int *,double,double);
+        void CustomElectrode(Molecule&,Molecule&,int *,double);
+	void AddCustomElectrode(Molecule&,Molecule&,Molecule&,int*, double);
 };
 #endif

@@ -1,5 +1,5 @@
-molemod : clean main.o molecule.o transform.o electrode.o job.o
-	g++ -o molemod main.o molecule.o transform.o electrode.o job.o
+junctionmod : clean main.o molecule.o transform.o electrode.o job.o
+	g++ -o junctionmod main.o molecule.o transform.o electrode.o job.o
 
 main.o :
 	g++ -c main.cpp

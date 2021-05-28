@@ -28,6 +28,8 @@ class Job
 	void TIPSQUARE_ELECTRODE(std::string);
 	void PYRAMID_ELECTRODE(std::string);
 	void LINEAR_ELECTRODE(std::string);
+        void CUSTOM_ELECTRODE(std::string,std::string);
+	void ADDCUSTOM_ELECTRODE(std::string,std::string,std::string);
 public:
 	void run(std::string);//only public function
 };

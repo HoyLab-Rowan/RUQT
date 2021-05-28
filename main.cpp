@@ -61,8 +61,8 @@ int main(int argc, char **argv){
 	if (argc == 1)
 	{
 		std::cout << "Too few arguments, include .mm file\n";
-		std::cout << "If you would like a list of MoleMod Line Inputs\nthen type 'molemod help'\n";
-		std::cout << "If you would like to keep this list of functions\nthen type 'molemod help > FILENAME.txt'\n";
+		std::cout << "If you would like a list of JunctionMod Line Inputs\nthen type 'junctionmod help'\n";
+		std::cout << "If you would like to keep this list of functions\nthen type 'junctionmod help > FILENAME.txt'\n";
 		return 1;
 		}
 
@@ -70,15 +70,17 @@ int main(int argc, char **argv){
 	{
 		Job jobExecuter;
 		std::string argument = argv[1];
-		std::cout << "__________________________________________________________________________________________\n";
-		std::cout << "     /\\    /\\                    _                    /\\    /\\                        __  \n";
-		std::cout << "    /  \\  /  \\       ________   | |   ________       /  \\  /  \\       ________       |  | \n";
-		std::cout << "   / /\\ \\/ /\\ \\     |  ____  |  | |  |  ____  |     / /\\ \\/ /\\ \\     |  ____  |      |  | \n";
-		std::cout << "  / /  \\__/  \\ \\    | |    | |  | |  |  ______|    / /  \\__/  \\ \\    | |    | |   ___|  | \n";
-		std::cout << " / /          \\ \\   | |____| |  | |  |  |_____    / /          \\ \\   | |____| |  | ___  | \n";
-		std::cout << "/_/            \\_\\  |________|  |_|  |________|  /_/            \\_\\  |________|  |______| \n";
-		std::cout << "__________________________________________________________________________________________\n";
-		std::cout << "__________________________________________________________________________________________\n";
+	
+              
+                 std::cout << "        __                 __  _                __  _______  ____ \n";
+                 std::cout << "       / /_  ______  _____/ /_(_)___  ____     /  |/  / __ \/ __ \ \n";
+                 std::cout << "  __  / / / / / __ \/ ___/ __/ / __ \/ __ \   / /|_/ / / / / / / / \n";
+                 std::cout << " / /_/ / /_/ / / / / /__/ /_/ / /_/ / / / /  / /  / / /_/ / /_/ /  \n";
+                 std::cout << " \____/\__,_/_/ /_/\___/\__/_/\____/_/ /_/  /_/  /_/\____/_____/  \n";
+                                                                 
+
+                                                                 
+
 		if (argument == "help"){PrintHelp(); exit(1);}
 		std::cout << "          ************************STARTING MODIFICATIONS************************          \n\n\n";
 		for (int i=1; i<argc; i++)

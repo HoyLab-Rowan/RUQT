@@ -24,7 +24,7 @@ void Molecule::Initiate(std::string filename, std::string filetype)
 		while (getline(inputFile, strLine))
 		{
 			if (counterLine == 0) {atomCount = atoi(strLine.c_str());}
-			else if (counterLine > 1)
+			else if (counterLine > 1 && counterLine < atomCount+2) //YOU ARE HERE
 			{
 				strlength = strLine.length();
 				charLine = new char[strlength+1]();
@@ -33,7 +33,7 @@ void Molecule::Initiate(std::string filename, std::string filetype)
 				atomVec.push_back(atom());
 				tokLine = strtok(charLine," ");
 				
-				while (tokLine != NULL)
+				while (tokLine != NULL) // used to be while (tokLine != NULL)
 				{
 					stringtok = tokLine;
 					if (counterTok == 0){atomVec[counterLine-2].atomSym = stringtok;}
@@ -102,6 +102,24 @@ void Molecule::PrintInfo(std::string filename, std::string filetype)
 					<< "    " << atomVec[i].coord[1] << "    "
 				       	<< atomVec[i].coord[2] << '\n';
 			}
+		}
+	}
+	if (filetype == "maple")//probably not needed
+	{
+		std::ofstream outputFile;
+		outputFile.open(filename.c_str());
+		if (outputFile)
+		{
+			outputFile << "mol.atom=\"";
+			for (int i = 0; i < atomCount; i++)
+			{
+				outputFile << std::fixed;
+				outputFile << atomVec[i].atomSym << " ";
+				outputFile << std::setprecision(9) << atomVec[i].coord[0]
+					<< " " << atomVec[i].coord[1]
+					<< " " << atomVec[i].coord[2] << ";";
+			}
+			outputFile << "\"";
 		}
 	}
 	return;

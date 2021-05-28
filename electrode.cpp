@@ -45,13 +45,16 @@ int Electrode::NearestH(Molecule& examMole, int ithAtom, char Decision)
 	
 }
 
-void Electrode::LinearElectrode(Molecule& examMole, int MCount, std::string MType, int * juncAtoms, double BL1, double BL2)
+//EDITING THIS FOR DNA MOLECULE
+void Electrode::LinearElectrode(Molecule& examMole, int MCount, std::string MType, int * juncAtoms, double BL1, double BL2, bool HydroRep)
 {
+  std::cout << "\ndebugging\n";
 	int junc1 = *juncAtoms; int junc2 = *(juncAtoms+2);
 	int Hydro1 = *(juncAtoms+1); int Hydro2 = *(juncAtoms+3);
+  std::cout << "\nworking on " << junc1 << junc2 << Hydro1 << Hydro2 << "\n";
+	transformer.AlignAxis(examMole,'z',junc1,junc2);
 	const double junc1coord = examMole.GetAtomCoord(junc1,'z');
 	const double junc2coord = examMole.GetAtomCoord(junc2,'z');
-	transformer.AlignAxis(examMole,'z',junc1,junc2);
 	examMole.AddAtom(MType,0.0,0.0,junc1coord-BL1);	
 	examMole.AddAtom(MType,0.0,0.0,junc2coord+BL1);
 	for (int i = 2; i <= MCount; i++)
@@ -59,9 +62,11 @@ void Electrode::LinearElectrode(Molecule& examMole, int MCount, std::string MTyp
 		examMole.AddAtom(MType,0.0,0.0,junc1coord-BL1-(BL2*(i-1)));
 		examMole.AddAtom(MType,0.0,0.0,junc2coord+BL1+(BL2*(i-1)));
 	}
-	if (Hydro2 > Hydro1) {examMole.RemoveAtom(Hydro2); examMole.RemoveAtom(Hydro1);}
-	else {examMole.RemoveAtom(Hydro1); examMole.RemoveAtom(Hydro2);}
-
+  if (HydroRep)
+  {
+	  if (Hydro2 > Hydro1) {examMole.RemoveAtom(Hydro2); examMole.RemoveAtom(Hydro1);}
+	  else {examMole.RemoveAtom(Hydro1); examMole.RemoveAtom(Hydro2);}
+  }
 	return;
 }
 
@@ -147,3 +152,42 @@ void Electrode::PyramidElectrode(Molecule& examMole, int layers, std::string MTy
 	else {examMole.RemoveAtom(Hydro1); examMole.RemoveAtom(Hydro2);}
 	return;
 }
+
+void Electrode::CustomElectrode(Molecule& elecMole, Molecule& juncMole, int * juncEle, double BL)
+{
+  int junc1 = *juncEle; int junc2 = *(juncEle+1);
+  int ele1 = *(juncEle+2); int aliJunc1 = *(juncEle+3);
+  int aliJunc2 = *(juncEle+4); int aliEle1 = *(juncEle+5);
+  int aliEle2 = *(juncEle+6);
+  
+  transformer.AlignAxis(elecMole, 'x', aliEle1, aliEle2);
+  transformer.AlignAxis(juncMole, 'x', aliJunc1, aliJunc2);
+  for (int i=0; i<elecMole.GetAtomCount(); i++)
+  {
+    juncMole.AddAtom(elecMole.GetAtomSym(i),-elecMole.GetAtomCoord(i, 'x') - BL,elecMole.GetAtomCoord(i,'y'),elecMole.GetAtomCoord(i,'z'));
+    juncMole.AddAtom(elecMole.GetAtomSym(i),elecMole.GetAtomCoord(i, 'x') + juncMole.GetAtomCoord(junc2, 'x') + BL,elecMole.GetAtomCoord(i,'y'),elecMole.GetAtomCoord(i,'z'));
+    
+  }
+
+
+}
+
+void Electrode::AddCustomElectrode(Molecule& elecMole, Molecule& juncMole, Molecule& elecMole2, int * juncEle, double BL)
+{
+  int junc1 = *juncEle; int junc2= *(juncEle+1);
+  int ele1 = *(juncEle+2); int ele2= *(juncEle+3);
+  int aliJunc1 = *(juncEle+4); int aliJunc2= *(juncEle+5);
+  int aliEle1 = *(juncEle+6); int aliEle2 = *(juncEle+7);
+  int aliEle3 = *(juncEle+8); int aliEle4 = *(juncEle+9);
+
+  transformer.AlignAxis(elecMole, 'x', aliEle1, aliEle2);
+  transformer.AlignAxis(juncMole, 'x', aliJunc1, aliJunc2);
+  transformer.AlignAxis(elecMole2, 'x', aliEle3, aliEle4);
+  
+  for(int i=0; i<elecMole.GetAtomCount(); i++)
+  {
+    juncMole.AddAtom(elecMole.GetAtomSym(i),-elecMole.GetAtomCoord(i,'x') - BL, elecMole.GetAtomCoord(i,'y'),elecMole.GetAtomCoord(i,'z'));
+    juncMole.AddAtom(elecMole2.GetAtomSym(i),elecMole2.GetAtomCoord(i,'x') + juncMole.GetAtomCoord(junc2, 'x') + BL, elecMole.GetAtomCoord(i,'y'), elecMole.GetAtomCoord(i,'z'));
+  }
+} 
+   
