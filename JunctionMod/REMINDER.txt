@@ -1,0 +1,4 @@
+GOAL:
+Build the junction from a molecule -> Run electronic structure calculation 
+-> setup Junction Calculation -> Junction Calculation NEGF-ifort
+
