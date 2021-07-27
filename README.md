@@ -57,11 +57,13 @@ accoring to the regular Openmolcas installation instructions. Use the Junction_C
 
 ***If you use this code, cite:***
 
-For NEGF-RDM
+For NEGF-RDM:
+
 Erik P. Hoy, David A. Mazziotti, and Tamar Seideman, “Development and application of a 2-electron reduced density matrix approach to electron transport via molecular 
 junctions” J. Chem. Phys. 147, 184110 (2017).
 
-For NEGF-PDFT
+For NEGF-PDFT:
+
 Andrew M. Sand, Justin T. Malme, and Erik P. Hoy, “A multiconfigurational pair-density functional theory approach to molecular junctions”, arXiv e-prints, 2021.
 https://arxiv.org/abs/2104.07744
 
