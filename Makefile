@@ -8,40 +8,37 @@
 
 #ifort commands(if -mkl does not work, try explicit links above)
 FXX       = ifort -O2 -axCORE-AVX2 -parallel -fPIC -mkl:parallel -static-intel -qopenmp-link static
-CXX       = icc -O2 
+CXX       = g++
 
-#
 CWD       = $(shell pwd)
 OBJ       = $(CWD)/Object
 JMOD      = $(CWD)/JunctionMod
 EXEC      = RUQT_v1r.x
 
 
-main: OBJ_DIR $(EXEC) junctionmod
-
-OBJ_DIR:
-	if test ! -d ${OBJ}; then mkdir -p ${OBJ}; fi
+main: $(EXEC) junctionmod
 
 $(EXEC): RUQT.f90 ${OBJ}/TypeMod.o  ${OBJ}/InterfaceMod.o ${OBJ}/Build_G_SD_Invert.o ${OBJ}/Build_B0_CISD.o
 
 	$(FXX) ${INC} ${LIB} RUQT.f90 ${OBJ}/TypeMod.o ${OBJ}/InterfaceMod.o ${OBJ}/Build_G_SD_Invert.o ${OBJ}/Build_B0_CISD.o -o ${EXEC}
 
-junctionmod: $(CXX) -o junctionmod ${OBJ}/main.o ${OBJ}/molecule.o ${OBJ}/transform.o ${OBJ}/electrode.o ${OBJ}/job.o
+junctionmod: ${OBJ}/main.o ${OBJ}/molecule.o ${OBJ}/transform.o ${OBJ}/electrode.o ${OBJ}/job.o
+	$(CXX) -o junctionmod ${OBJ}/main.o ${OBJ}/molecule.o ${OBJ}/transform.o ${OBJ}/electrode.o ${OBJ}/job.o
 
-${OBJ}/main.o :
-	icc -c {JMOD}/main.cpp
+${OBJ}/main.o : ${JMOD}/main.cpp
+	$(CXX) -c ${JMOD}/main.cpp -o ${OBJ}/main.o
 
 ${OBJ}/molecule.o : ${JMOD}/molecule.cpp ${JMOD}/molecule.h
-	icc -c ${JMOD}/molecule.cpp
+	$(CXX) -c ${JMOD}/molecule.cpp -o ${OBJ}/molecule.o
 
 ${OBJ}/transform.o : ${JMOD}/transform.cpp ${JMOD}/transform.h
-	icc -c ${JMOD}/transform.cpp
+	$(CXX) -c ${JMOD}/transform.cpp -o ${OBJ}/transform.o
 
 ${OBJ}/electrode.o : ${JMOD}/electrode.cpp ${JMOD}/electrode.h
-	icc -c ${JMOD}/electrode.cpp
+	$(CXX) -c ${JMOD}/electrode.cpp -o ${OBJ}/electrode.o
 
 ${OBJ}/job.o : ${JMOD}/job.cpp ${JMOD}/job.h
-	icc -c ${JMOD}/job.cpp
+	$(CXX) -c ${JMOD}/job.cpp -o ${OBJ}/job.o
 
 ${OBJ}/TypeMod.o: TypeMod.f90
 	$(FXX) -c TypeMod.f90 -o ${OBJ}/TypeMod.o
