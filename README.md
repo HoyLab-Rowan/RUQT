@@ -1,7 +1,7 @@
 # RUQT
 
 ***Rowan University Quantum Transport (RUQT)*** 
- with JunctionMod Included!
+ with ***JunctionMod*** Included!
 
 RUQT is an in-progress non-equilibrium Green's function (NEGF) based software package focused on studying electron correlation effects in charge transport problems. It is focused on integrating N- and 2-electron methods into the NEGF transport formalism and is the home of the NEGF-RDM and NEGF-PDFT transport methods. As of July 2021, it is capable of performing Landauer NEGF calculations using electronic structure data acquired from separate Hartree-Fock, Density Functional Theory, Multiconfiguration Pair Density Functional Theory, and Parametric 2-Electron Reduced Density Matrix Theory calculations. The code itself is written in Fortran90+ while the supporting scripts are either in python or Maple. The recommended supporting code JunctionMod is available on the HoyLab-Rowan Github.
 
