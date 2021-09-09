@@ -38,7 +38,7 @@ The Maple scripts are available for all methods except MC-PDFT, and Python scrip
 PDFT) calculations. 
 
 The Maple scripts only require an .xyz file with the junction (molecule+electrode) geometry. These can be produced by the JunctionMod code is included in this package 
-and can be used to construct/align molecular junctions. If you use another software package to generate the xyz make sure that the junction must be placed along the 
+and can be used to construct/align molecular junctions. If you use another software package to generate the xyz make sure that the junction is placed along the 
 x-axis. 
 
 Using the python scripts requires forming separate electronic structure calculations with specific keywords in the inputs in order to print the Fock, overlap, and 
