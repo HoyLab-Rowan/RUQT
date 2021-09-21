@@ -50,11 +50,11 @@ The GAMESS p2-RDM code is acquired from the Mazziotti group at UChicago and is n
 access to the GAMESS p2-RDM code). 
 
 
-NEGF-PDFT
+NEGF-MCPDFT
 
-In order to run NEGF-PDFT calculations, you will need to install the sandx_fock OpenMolcas branch available here (https://gitlab.com/Molcas/OpenMolcas/-/tree/sandx_fock) which generates the FOCK_AO and Overlap files need by RUQT. These contain the MC-PDFT effective Hamilionian and overlap matrices from an OpenMolcas 
+In order to run NEGF-MCPDFT calculations, you will need to install the sandx_fock OpenMolcas branch available here (https://gitlab.com/Molcas/OpenMolcas/-/tree/sandx_fock) which generates the FOCK_AO and Overlap files need by RUQT. These contain the MC-PDFT effective Hamilionian and overlap matrices from an OpenMolcas 
 MC-PDFT calculation (see example directory for necessary inputs). These matrices are only available from the sandx_fock branch of OpenMolcas which can be installed 
-accoring to the regular Openmolcas installation instructions. Use the Junction_Calc.py python script to run the NEGF-PDFT code.
+according to the regular Openmolcas installation instructions. Use the Junction_Calc.py python script to run the NEGF-MCPDFT code.
 
 ***If you use this code, cite:***
 
@@ -63,9 +63,8 @@ For NEGF-RDM:
 Erik P. Hoy, David A. Mazziotti, and Tamar Seideman, “Development and application of a 2-electron reduced density matrix approach to electron transport via molecular 
 junctions” J. Chem. Phys. 147, 184110 (2017).
 
-For NEGF-PDFT:
+For NEGF-MCPDFT:
 
-Andrew M. Sand, Justin T. Malme, and Erik P. Hoy, “A multiconfigurational pair-density functional theory approach to molecular junctions”, The Journal of Chemical 
-Physics, 155(11), 114115 (2021). https://doi.org/10.1063/5.0063293 
+Andrew M. Sand, Justin T. Malme, and Erik P. Hoy, “A multiconfigurational pair-density functional theory approach to molecular junctions”, J. Chem. Phys, 155(11), 114115 (2021). https://doi.org/10.1063/5.0063293 
 
 <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHoyLab-Rowan%2FRUQT&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
