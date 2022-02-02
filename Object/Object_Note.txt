@@ -1,0 +1,1 @@
+This directory is where the object files are stored during program compilation. It can be cleared after compilation is complete.

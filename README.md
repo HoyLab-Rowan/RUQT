@@ -1,8 +1,9 @@
 # RUQT
 
-***Rowan University Quantum Transport (RUQT)***
+***Rowan University Quantum Transport (RUQT)*** 
+ with ***JunctionMod*** included!
 
-RUQT is an in-progress non-equilibrium Green's function (NEGF) based software package focused on studying electron correlation effects in charge transport problems. It is focused on integrating N- and 2-electron methods into the NEGF transport formalism and is the home of the NEGF-RDM and NEGF-PDFT transport methods. As of July 2021, it is capable of performing Landauer NEGF calculations using electronic structure data acquired from separate Hartree-Fock, Density Functional Theory, Multiconfiguration Pair Density Functional Theory, and Parametric 2-Electron Reduced Density Matrix Theory calculations. The code itself is written in Fortran90+ while the supporting scripts are either in python or Maple. The recommended supporting code JunctionMod is available on the HoyLab-Rowan Github.
+RUQT is an in-progress non-equilibrium Green's function (NEGF) based software package focused on studying electron correlation effects in charge transport problems. It is focused on integrating N- and 2-electron methods into the NEGF transport formalism and is the home of the NEGF-RDM and NEGF-PDFT transport methods. As of July 2021, it is capable of performing Landauer NEGF calculations using electronic structure data acquired from separate Hartree-Fock, Density Functional Theory, Multiconfiguration Pair Density Functional Theory, and Parametric 2-Electron Reduced Density Matrix Theory calculations. The code itself is written in Fortran90+ while the supporting scripts are either in Python or Maple. The recommended supporting code JunctionMod is compiled as part of this code and avialable separately here: https://github.com/HoyLab-Rowan/JunctionMod
 
 RUQT currently can read data from the following electronic structure software packages (more methods/package support to come in future):
 
@@ -37,7 +38,7 @@ The Maple scripts are available for all methods except MC-PDFT, and Python scrip
 PDFT) calculations. 
 
 The Maple scripts only require an .xyz file with the junction (molecule+electrode) geometry. These can be produced by the JunctionMod code is included in this package 
-and can be used to construct/align molecular junctions. If you use another software package to generate the xyz make sure that the junction must be placed along the 
+and can be used to construct/align molecular junctions. If you use another software package to generate the xyz make sure that the junction is placed along the 
 x-axis. 
 
 Using the python scripts requires forming separate electronic structure calculations with specific keywords in the inputs in order to print the Fock, overlap, and 
@@ -49,11 +50,11 @@ The GAMESS p2-RDM code is acquired from the Mazziotti group at UChicago and is n
 access to the GAMESS p2-RDM code). 
 
 
-NEGF-PDFT
+NEGF-MCPDFT
 
-In order to run NEGF-PDFT calculations, you will need to install the sandx_fock OpenMolcas branch available here (https://gitlab.com/Molcas/OpenMolcas/-/tree/sandx_fock) which generates the FOCK_AO and Overlap files need by RUQT. These contain the MC-PDFT effective Hamilionian and overlap matrices from an OpenMolcas 
+In order to run NEGF-MCPDFT calculations, you will need to install the sandx_fock OpenMolcas branch available here (https://gitlab.com/Molcas/OpenMolcas/-/tree/sandx_fock) which generates the FOCK_AO and Overlap files need by RUQT. These contain the MC-PDFT effective Hamilionian and overlap matrices from an OpenMolcas 
 MC-PDFT calculation (see example directory for necessary inputs). These matrices are only available from the sandx_fock branch of OpenMolcas which can be installed 
-accoring to the regular Openmolcas installation instructions. Use the Junction_Calc.py python script to run the NEGF-PDFT code.
+according to the regular Openmolcas installation instructions. Use the Junction_Calc.py python script to run the NEGF-MCPDFT code.
 
 ***If you use this code, cite:***
 
@@ -62,8 +63,8 @@ For NEGF-RDM:
 Erik P. Hoy, David A. Mazziotti, and Tamar Seideman, “Development and application of a 2-electron reduced density matrix approach to electron transport via molecular 
 junctions” J. Chem. Phys. 147, 184110 (2017).
 
-For NEGF-PDFT:
+For NEGF-MCPDFT:
 
-Andrew M. Sand, Justin T. Malme, and Erik P. Hoy, “A multiconfigurational pair-density functional theory approach to molecular junctions”, arXiv e-prints, 2021.
-https://arxiv.org/abs/2104.07744
+Andrew M. Sand, Justin T. Malme, and Erik P. Hoy, “A multiconfigurational pair-density functional theory approach to molecular junctions”, J. Chem. Phys, 155(11), 114115 (2021). https://doi.org/10.1063/5.0063293 
 
+<a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHoyLab-Rowan%2FRUQT&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
