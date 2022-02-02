@@ -72,30 +72,34 @@
       integer :: size_l,size_c,size_r,size_lc,size_lcr
       end subroutine
 
-      subroutine Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans)
+      subroutine Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
       implicit none
 
       integer :: size_lc,size_c,size_lcr,size_l,size_r
       real(8) :: localden_fermi_l,localden_fermi_r
       complex(8), allocatable, dimension(:,:) :: Sigma_L,Sigma_R
       real(8), allocatable, dimension(:,:) :: Smat_le,Smat_re,H_Two_re,H_Two_le,H_Two_re_trans,H_Two_le_trans
+      logical :: write_ruqt_data
+      character(len=100) :: inputfile
       end subroutine
 
-      subroutine PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_el,Smat_er,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans)
+      subroutine PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_el,Smat_er,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
       implicit none
 
       real(8), allocatable, dimension(:,:) :: Smat,Smat_el,Smat_er,Smat_cen,H_Two,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans
       integer :: size_l,size_c,size_r,size_lc,size_lcr
+      logical :: write_ruqt_data
+      character(len=100) :: inputfile
       end subroutine
 
-      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type)
+      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
       implicit none
 
       character(len=100) :: inputfile
       character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
       integer :: norb,size_c,size_r,size_l,numfvirt,numfcore,numocc,numvirt,numatomic,num_threads
       real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT,Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
-      logical :: libint,doubles,rdm,use_b0
+      logical :: libint,doubles,rdm,use_b0,write_ruqt_data
       end subroutine
 
       Subroutine Build_G_SD_Invert(G_C,Sigma_l,Sigma_r,energy,size_l,size_c,size_lc,size_lcr,norb,inputfile,numocc,numvirt,iter,B1data,B2data,mo_ener,mo_coeff,mo_coeff2,doubles,currentflag,energy_values,ener_val,G_S,corr_ener,numatomic,B0_coeff,use_b0,gamess,maple,numfcore,numfvirt,b0_type)

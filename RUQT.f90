@@ -14,7 +14,7 @@
       integer :: size_l,size_r,size_c,size_lc,size_lcr,numatomic,num_threads,numfcore,numfvirt
       character(len=100) :: inputfile,outfile,option
       logical :: libint,gamess,rdm_flag,invert,doubles,currentflag,cisd_flag,qchem,hf_flag
-      logical :: dft_flag,pyscf,maple,use_b0,molcas
+      logical :: dft_flag,pyscf,maple,use_b0,molcas,write_ruqt_data
       integer :: i,j,k,counter,counter2,current_values,norb,numact,energy_val,volt_val,ioerror,numocc,numvirt
       character(len=40) :: ElectrodeType,CalcType,functional,inputcode,b0_type
       real(8) :: KT,current_con,Fermi_enl,Fermi_enR,localden_fermi,localden_fermi_l,localden_fermi_r,temp
@@ -30,7 +30,7 @@
       write(*,*) "Just getting started"
       Call Get_Command_Argument(1,inputfile)
 
-      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type)
+      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
      write(*,*) "Input File Read"
      write(*,*) "Using the following parameters for the transport calculation"
      write(*,*) "Number of OpenMP Threads:",num_threads
@@ -99,10 +99,10 @@
        allocate(Sigma_l(1:size_c,1:size_c))
        allocate(Sigma_r(1:size_c,1:size_c))
   
-       Call PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_le,Smat_re,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans)
+       Call PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_le,Smat_re,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
 
        write(*,*) 'Getting Electrodes'
-       Call Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans)
+       Call Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
 
        allocate(Gamma_L(1:size_c,1:size_c))
        allocate(Gamma_R(1:size_c,1:size_c))
@@ -718,13 +718,15 @@
       end subroutine
 
 
-      subroutine Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans)
+      subroutine Electrodes_MetalWBL(Sigma_l,Sigma_r,Smat_re,Smat_le,H_Two_le,H_Two_re,localden_fermi_l,localden_fermi_r,size_c,size_lc,size_lcr,size_l,size_r,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
       use FunctionMod
       implicit none
-      integer :: size_lc,size_c,size_lcr,i,j,size_l,size_r
+      integer :: size_lc,size_c,size_lcr,i,j,size_l,size_r,ioerror
       real(8) :: Coupling_R,Coupling_L,temp,localden_fermi_l,localden_fermi_r,pi
       complex(8), allocatable, dimension(:,:) :: Sigma_L,Sigma_R
       real(8), allocatable, dimension(:,:) :: Smat_LE,Smat_RE,Smat,H_Two_re,H_Two_le,Sigma_L_temp,Sigma_R_temp,Sigma_R_temp2,Sigma_L_temp2,sigma_r_temp3,sigma_l_temp3,H_Two_le_trans,H_Two_re_trans
+      logical :: write_ruqt_data
+      character(len=100) :: inputfile,outfile
 
       pi = 3.14159265359
 
@@ -758,15 +760,34 @@
       deallocate(Sigma_R_temp2)
       deallocate(Sigma_R_temp3)
 
+      if(write_ruqt_data) then
+        outfile = trim(inputfile) // ".partdat"
+        open(unit=8,file=outfile,access='append',action='write',iostat=ioerror)
+
+        write(8,*) "RUQT Coupling Matrices"
+        do j=1,size_c
+          do i=1,size_c
+             write(8,*) j,i,Sigma_R(j,i)
+             end do
+            end do
+         do j=1,size_c
+           do i=1,size_c
+              write(8,*) j,i,Sigma_R(j,i)
+             end do
+            end do
+       close(8)
+      end if
       write(*,*) 'Sigma Calculated'
       end subroutine
 
-              subroutine PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_le,Smat_re,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans)
+              subroutine PartitionHS_MetalWBL(Smat,H_Two,size_l,size_r,size_c,size_lc,size_lcr,Smat_le,Smat_re,Smat_cen,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans,write_ruqt_data,inputfile)
               implicit none
 
               real(8), allocatable, dimension(:,:) :: Smat,Smat_le,Smat_re,Smat_cen,H_Two,H_Two_cen,H_Two_re,H_Two_le,temp,H_Two_le_trans,H_Two_re_trans
               real(8), allocatable, dimension(:) :: eigen,work
-              integer :: size_l,size_c,size_r,size_lc,size_lcr,info,lwork
+              integer :: size_l,size_c,size_r,size_lc,size_lcr,info,lwork,i,j,ioerror
+              logical :: write_ruqt_data
+              character(len=100) :: inputfile,outfile
 
               allocate(Smat_le(1:size_l,1:size_l))
               allocate(Smat_re(1:size_r,1:size_r))
@@ -791,6 +812,48 @@
               H_Two_re_trans(1:size_c,1:size_r) = 27.2114*H_Two(size_l+1:size_lc,size_lc+1:size_lcr)!transpose(H_Two_re)
               write(*,*) 'Done partitioning Fock Matrix'
               deallocate(H_Two) 
+              if(write_ruqt_data) then
+               outfile = trim(inputfile) // ".partdat"
+               open(unit=8,file=outfile,action='write',iostat=ioerror)
+
+
+               write(8,*) size_l,size_c,size_r
+               write(8,*) "RUQT Overlap Matrices"
+               do j=1,size_l
+                 do i=1,size_l
+                  write(8,*) j,i,Smat_le(j,i)
+                end do
+               end do
+               do j=1,size_c
+                do i=1,size_c
+                 write(8,*) j,i,Smat_cen(j,i)
+                end do
+               end do
+               do j=1,size_r
+                do i=1,size_r
+                 write(8,*) j,i, Smat_re(j,i)
+                end do
+               end do
+
+               write(8,*) "RUQT Fock Matrices"
+               do j=1,size_l
+                do i=1,size_c
+                  write(8,*) j,i,H_Two_le(j,i)/27.2114
+                end do
+               end do
+               do j=1,size_r
+                do i=1,size_c
+                 write(8,*) j,i,H_Two_re(j,i)/27.2114
+                end do
+               end do
+               do j=1,size_c
+                do i=1,size_c
+                 write(8,*) j,i,H_Two_cen(j,i)/27.2114
+                end do
+               end do
+
+               close(8)
+              end if
               end subroutine
 
 
@@ -966,12 +1029,13 @@
               character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
               integer :: norb, size_c,size_r,size_l,numfcore,numfvirt,numocc,numvirt,numatomic,num_threads
               real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
-              logical :: libint,doubles,use_b0
+              logical :: libint,doubles,use_b0,write_ruqt_data
               real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
 
               filename = trim(inputfile)
               open(unit=1,file=filename,action="read")
               20 format(A) 
+              num_threads=0
               read(1,20) CalcType
               read(1,20) Electrode_Type
               read(1,*) Fermi_enl
@@ -999,8 +1063,12 @@
                       read(1,*) functional
                       read(1,*) use_b0
                       read(1,*) b0_type
+                      read(1,*) write_ruqt_data
+                      read(1,*) num_threads
                       close(1)
-                      num_threads=1
+                      if(num_threads.eq.0) then
+                       num_threads=1
+                      end if
                       end subroutine 
 
                       subroutine Flag_set(inputcode,functional,cisd_flag,rdm_flag,hf_flag,dft_flag,qchem,gamess,pyscf,maple,molcas)
