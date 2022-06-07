@@ -67,8 +67,7 @@
        elseif(maple.eqv..true.) then
         write(*,*) "Using Maple+QuantumChemistry data for this run"
         Call Get_HF_PySCF(inputfile,numatomic,H_Two,Smat,norb)
-      endif
-       
+
       write(*,*) 'This run using:'
       if(rdm_flag.eqv..true.) then
         write(*,*) 'The Lehmann representation of a'
@@ -761,10 +760,11 @@
       deallocate(Sigma_R_temp3)
 
       if(write_ruqt_data) then
-        outfile = trim(inputfile) // ".partdat"
-        open(unit=8,file=outfile,access='append',action='write',iostat=ioerror)
+        outfile = trim(inputfile) // ".Sigma"
+        open(unit=8,file=outfile,action='write',iostat=ioerror)
 
-        write(8,*) "RUQT Coupling Matrices"
+        write(8,*) size_l,size_c,size_r
+        write(8,*) "RUQT Sigma Matrices"
         do j=1,size_c
           do i=1,size_c
              write(8,*) j,i,Sigma_R(j,i)
@@ -842,7 +842,7 @@
                 end do
                end do
                do j=1,size_r
-                do i=1,size_c
+              i  do i=1,size_c
                  write(8,*) j,i,H_Two_re(j,i)/27.2114
                 end do
                end do
