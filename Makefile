@@ -13,7 +13,7 @@ CXX       = g++
 CWD       = $(shell pwd)
 OBJ       = $(CWD)/Object
 JMOD      = $(CWD)/JunctionMod
-EXEC      = RUQT_v1r.x
+EXEC      = RUQT.x
 
 
 main: $(EXEC) junctionmod
