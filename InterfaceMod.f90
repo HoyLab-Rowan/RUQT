@@ -16,12 +16,13 @@
        real(8), allocatable, dimension(:,:) :: H_Two,Smat
        end subroutine
 
-       subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat)
+       subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat,state_num)
        implicit none
 
        character(len=100) :: inputfile
        integer :: norb
        real(8), allocatable, dimension(:,:) :: H_Two,Smat
+       character(len=4) :: state_num
        end subroutine
 
        subroutine Get_HF_GAMESS(inputfile,numatomic,H_two,Smat,norb)
@@ -92,7 +93,7 @@
       character(len=100) :: inputfile
       end subroutine
 
-      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
+      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
       implicit none
 
       character(len=100) :: inputfile
@@ -100,6 +101,7 @@
       integer :: norb,size_c,size_r,size_l,numfvirt,numfcore,numocc,numvirt,numatomic,num_threads
       real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT,Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
       logical :: libint,doubles,rdm,use_b0,write_ruqt_data
+      character(len=4) :: state_num
       end subroutine
 
       Subroutine Build_G_SD_Invert(G_C,Sigma_l,Sigma_r,energy,size_l,size_c,size_lc,size_lcr,norb,inputfile,numocc,numvirt,iter,B1data,B2data,mo_ener,mo_coeff,mo_coeff2,doubles,currentflag,energy_values,ener_val,G_S,corr_ener,numatomic,B0_coeff,use_b0,gamess,maple,numfcore,numfvirt,b0_type)

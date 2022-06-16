@@ -24,6 +24,7 @@
       type(B2) :: B2data,l2data
       type(energr) :: G_S
       real(8) :: time_start,time_end
+      character(len=4) :: state_num
 
       call cpu_time(time_start)
       invert=.true.
@@ -31,7 +32,7 @@
       write(*,*) "Just getting started"
       Call Get_Command_Argument(1,inputfile)
 
-      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
+      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
      write(*,*) "Input File Read"
      write(*,*) "Using the following parameters for the transport calculation"
      write(*,*) "Number of OpenMP Threads:",num_threads
@@ -55,7 +56,7 @@
         write(*,*) 'Using Qchem data for this run'
         Call Get_HF_Qchem(inputfile,norb,H_Two,Smat)
        elseif(molcas.eqv..true.) then
-        Call Get_HF_Molcas(inputfile,norb,H_Two,Smat)
+        Call Get_HF_Molcas(inputfile,norb,H_Two,Smat,state_num)
        elseif(libint.eqv..true.) then
         Call Get_HF_libint(inputfile,norb,numact,H_one,Smat,mo_coeff,OneInts,TwoIntsCompact)
        elseif(gamess.eqv..true.) then
@@ -499,7 +500,7 @@
       write(*,*) 'Done Getting HF Values'
       end subroutine
 
-      subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat)
+      subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat,state_num)
       !Use InterfaceMod
       implicit none
 
@@ -507,7 +508,7 @@
       real(8),allocatable,dimension(:,:) :: H_Two,Smat
       integer :: norb,ioerror,i,j,x,y
       real(8) :: readtemp
-
+      character(len=4) :: state_num
       20 format(A)
       !write(*,*) inputfile
       allocate(H_two(1:norb,1:norb))
@@ -528,7 +529,8 @@
       close(2)
 
        write(*,*) 'Start Fock Matrix'
-      datafile = "FOCK_AO"
+      
+      datafile = "FOCK_AO_"//trim(state_num)
       open(unit=3,file=datafile,action='READ', iostat = ioerror)
 
       do i=1,norb
@@ -1096,7 +1098,7 @@
 
               end function CompositeIndex
 
-              subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type)
+              subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,state_num)
               implicit none
               character(len=100) :: inputfile
               character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
@@ -1104,6 +1106,7 @@
               real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
               logical :: libint,doubles,use_b0,write_ruqt_data
               real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
+              character(len=4) :: state_num
 
               filename = trim(inputfile)
               open(unit=1,file=filename,action="read")
@@ -1138,6 +1141,7 @@
                       read(1,*) b0_type
                       read(1,*) write_ruqt_data
                       read(1,*) num_threads
+                      read(1,*) state_num
                       close(1)
                       if(num_threads.eq.0) then
                        num_threads=1
