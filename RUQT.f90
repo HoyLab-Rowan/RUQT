@@ -24,7 +24,7 @@
       type(B2) :: B2data,l2data
       type(energr) :: G_S
       real(8) :: time_start,time_end
-      character(len=4) :: state_num
+      integer :: state_num
 
       call cpu_time(time_start)
       invert=.true.
@@ -32,7 +32,7 @@
       write(*,*) "Just getting started"
       Call Get_Command_Argument(1,inputfile)
 
-      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
+     Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
      write(*,*) "Input File Read"
      write(*,*) "Using the following parameters for the transport calculation"
      write(*,*) "Number of OpenMP Threads:",num_threads
@@ -47,6 +47,7 @@
      write(*,*) "Voltage Window and dV:",volt_start,volt_end,delta_volt
      write(*,*) "Fermi Density:",localden_fermi_l,localden_fermi_r
      write(*,*) "KT:",KT
+     write(*,*) "Transport Calculated for State ",state_num
       size_lc = size_l + size_c
       size_lcr = size_l + size_c + size_r
       libint=.false.
@@ -508,7 +509,8 @@
       real(8),allocatable,dimension(:,:) :: H_Two,Smat
       integer :: norb,ioerror,i,j,x,y
       real(8) :: readtemp
-      character(len=4) :: state_num
+      integer :: state_num
+      character(len=100) :: state_char
       20 format(A)
       !write(*,*) inputfile
       allocate(H_two(1:norb,1:norb))
@@ -530,7 +532,15 @@
 
        write(*,*) 'Start Fock Matrix'
       
-      datafile = "FOCK_AO_"//trim(state_num)
+      write(*,*) state_num
+      if(state_num.lt.10) then
+       write(state_char,"(I1)") state_num
+      else
+       write(state_char,"(I2)") state_num
+      end if
+
+      datafile = "FOCK_AO_"//trim(state_char)
+      write(*,*) datafile
       open(unit=3,file=datafile,action='READ', iostat = ioerror)
 
       do i=1,norb
@@ -1098,15 +1108,15 @@
 
               end function CompositeIndex
 
-              subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,state_num)
-              implicit none
-              character(len=100) :: inputfile
-              character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
-              integer :: norb, size_c,size_r,size_l,numfcore,numfvirt,numocc,numvirt,numatomic,num_threads
-              real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
-              logical :: libint,doubles,use_b0,write_ruqt_data
-              real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
-              character(len=4) :: state_num
+     subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
+     implicit none
+     character(len=100) :: inputfile
+     character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
+     integer :: norb, size_c,size_r,size_l,numfcore,numfvirt,numocc,numvirt,numatomic,num_threads
+     real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
+     logical :: libint,doubles,use_b0,write_ruqt_data
+     real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
+     integer :: state_num
 
               filename = trim(inputfile)
               open(unit=1,file=filename,action="read")
@@ -1122,31 +1132,32 @@
               read(1,*) numatomic
               read(1,*) numfcore
               read(1,*) numfvirt
-                      read(1,*) numocc
-                      read(1,*) numvirt
-                      read(1,*) size_c
-                      read(1,*) size_l
-                      read(1,*) size_r
-                      read(1,*) energy_start
-                      read(1,*) energy_end
-                      read(1,*) delta_en
-                      read(1,*) volt_start
-                      read(1,*) volt_end
-                      read(1,*) delta_volt
-                      read(1,*) KT
-                      read(1,*) inputcode
-                      read(1,*) doubles
-                      read(1,*) functional
-                      read(1,*) use_b0
-                      read(1,*) b0_type
-                      read(1,*) write_ruqt_data
-                      read(1,*) num_threads
-                      read(1,*) state_num
-                      close(1)
-                      if(num_threads.eq.0) then
-                       num_threads=1
-                      end if
-                      end subroutine 
+              read(1,*) numocc
+              read(1,*) numvirt
+              read(1,*) size_c
+              read(1,*) size_l
+              read(1,*) size_r
+              read(1,*) energy_start
+              read(1,*) energy_end
+              read(1,*) delta_en
+              read(1,*) volt_start
+              read(1,*) volt_end
+              read(1,*) delta_volt
+              read(1,*) KT
+              read(1,*) inputcode
+              read(1,*) doubles
+              read(1,*) functional
+              read(1,*) use_b0
+              read(1,*) b0_type
+              read(1,*) write_ruqt_data
+              read(1,*) num_threads
+              read(1,*) state_num
+                      
+              close(1)
+              if(num_threads.eq.0) then
+                 num_threads=1
+                end if
+              end subroutine 
 
                       subroutine Flag_set(inputcode,functional,cisd_flag,rdm_flag,hf_flag,dft_flag,qchem,gamess,pyscf,maple,molcas)
                       implicit none
