@@ -25,6 +25,16 @@
        integer :: state_num
        end subroutine
 
+       subroutine Get_HF_Molcas2(datafile,norb,H_two,Smat,state_num)
+       implicit none
+
+       character(len=9) :: datafile
+       integer :: norb
+       real(8), allocatable, dimension(:,:) :: H_Two,Smat
+       integer :: state_num
+       end subroutine
+
+
        subroutine Get_HF_GAMESS(inputfile,numatomic,H_two,Smat,norb)
        implicit none
 

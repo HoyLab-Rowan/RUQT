@@ -57,7 +57,7 @@
         write(*,*) 'Using Qchem data for this run'
         Call Get_HF_Qchem(inputfile,norb,H_Two,Smat)
        elseif(molcas.eqv..true.) then
-        Call Get_HF_Molcas(inputfile,norb,H_Two,Smat,state_num)
+        Call Get_HF_Molcas2("MolEl.dat",norb,H_Two,Smat,state_num)
        elseif(libint.eqv..true.) then
         Call Get_HF_libint(inputfile,norb,numact,H_one,Smat,mo_coeff,OneInts,TwoIntsCompact)
        elseif(gamess.eqv..true.) then
@@ -553,6 +553,62 @@
       write(*,*) 'Done Getting HF Values'
       end subroutine
 
+      subroutine Get_HF_Molcas2(datafile,norb,H_two,Smat,state_num)
+      !Use InterfaceMod
+      implicit none
+
+      character(len=9) :: datafile
+      real(8),allocatable,dimension(:,:) :: H_Two,Smat
+      integer :: norb,ioerror,i,j,x,y
+      real(8) :: readtemp
+      integer :: state_num,num_states,norb_2,nelec_2,actorb,actel
+      character(len=100) :: state_char,readtemp_str
+      20 format(A)
+      !write(*,*) inputfile
+      allocate(H_two(1:norb,1:norb))
+      allocate(Smat(1:norb,1:norb))
+      H_two=0
+      Smat=0
+
+      open(unit=2,file=datafile,action='READ', iostat = ioerror)
+
+      read(2,*) readtemp_str
+      read(2,*) num_states,norb_2,nelec_2,actorb,actel
+      read(2,*) readtemp_str
+
+      if(norb_2.ne.norb) then
+        write(*,*) "Your orbital count is incorrent. Please check your input and MolEl.dat files"
+        stop
+       end if
+
+      do i=1,norb
+       do j=i,norb
+        read(2,*) x,y,readtemp
+         Smat(x,y)=readtemp
+         Smat(y,x)=readtemp
+       end do
+      end do
+
+      do while (trim(readtemp_str).ne."Effective Hamiltonian(s) (AO)")
+       read(2,*) readtemp_str
+      end do
+      
+      x=0
+      do while (trim(readtemp_str).ne."State".and.x.ne.state_num)
+       read(2,*) readtemp_str,x
+      end do
+
+      write(*,*) "Reading Fock Matrix for ",state_num
+
+      do i=1,norb
+       do j=1,norb
+        read(2,*) x,y,readtemp
+        H_Two(x,y)=readtemp
+       end do
+      end do
+      close(2)
+      write(*,*) 'Done Getting HF Values'
+      end subroutine
 
  
       
