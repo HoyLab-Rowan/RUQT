@@ -1,6 +1,6 @@
 # RUQT
 
-***This branch of RUQT is intended to be an NEGF calculator for pyRUQT. It is not the same as the standalone main branch***
+***This branch of RUQT is an NEGF calculator for pyRUQT. It is not inputs/datafiles created for/by the standalone main branch***
 
 ***Rowan University Quantum Transport (RUQT)*** 
  with ***JunctionMod*** included!
