@@ -577,7 +577,7 @@
       read(2,*) readtemp_str
 
       if(norb_2.ne.norb) then
-        write(*,*) "Your orbital count is incorrent. Please check your input and MolEl.dat files"
+        write(*,*) "Your orbital count is incorrect. Please check your input and MolEl.dat files"
         stop
        end if
 
@@ -589,7 +589,7 @@
        end do
       end do
 
-      do while (trim(readtemp_str).ne."Effective Hamiltonian(s) (AO)")
+      do while (trim(readtemp_str).ne."Effective")
        read(2,*) readtemp_str
       end do
       
