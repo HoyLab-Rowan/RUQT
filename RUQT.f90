@@ -67,7 +67,7 @@
        elseif(maple.eqv..true.) then
         write(*,*) "Using Maple+QuantumChemistry data for this run"
         Call Get_HF_PySCF(inputfile,numatomic,H_Two,Smat,norb)
-
+       end if
       write(*,*) 'This run using:'
       if(rdm_flag.eqv..true.) then
         write(*,*) 'The Lehmann representation of a'
@@ -174,6 +174,7 @@
        outfile = trim(inputfile) // ".dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
 
+       write(7,*) volt_val
        do j=1,volt_val
          write(7,*) real(voltage(j)),real(current(j))
        end do
@@ -232,7 +233,7 @@
 
        outfile = trim(inputfile) // ".dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
-
+       write(7,*) energy_val
        do j=1,energy_val
          write(7,*) real(energy_list(j)),real(transm(j))
        end do
@@ -358,7 +359,7 @@
 
        outfile = trim(inputfile) // ".dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
-
+       write(7,*) energy_val
        do j=1,energy_val
          write(7,*) real(energy_list(j)),real(transm(j))
        end do
@@ -842,7 +843,7 @@
                 end do
                end do
                do j=1,size_r
-              i  do i=1,size_c
+                do i=1,size_c
                  write(8,*) j,i,H_Two_re(j,i)/27.2114
                 end do
                end do
