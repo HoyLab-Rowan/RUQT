@@ -1,5 +1,7 @@
 # RUQT
 
+***This branch of RUQT is an NEGF calculator for pyRUQT. It is not compatible with inputs/datafiles created for the standalone main branch***
+
 ***Rowan University Quantum Transport (RUQT)*** 
  with ***JunctionMod*** included!
 
@@ -22,9 +24,9 @@ Compiler: GNU or ifort
 1. Download the code and open the Makefile. 
 2. Set the MKLROOT variable to the location of your MKL library. 
 3. Compiles using Intel fortran compilers by default. Make sure that ifort can find your MKL libraries using the -mkl flag
-3. To use gfortran uncomment the gfortran instead line with MKL library links and comment out the ifort line.
+3. To use gfortran uncomment the gfortran line with MKL library links and comment out the ifort line.
 4. Close Makefile and enter the make command in the terminal.
-5. This should produce an "RUQT_1r.x" executable. 
+5. This should produce an "RUQT.x" executable for use with external programs. 
 6. If needed, use "make clean" to clear all .mod and .o files from the source and object directories.
 
 ***How to Use***

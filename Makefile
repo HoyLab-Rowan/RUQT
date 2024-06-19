@@ -1,19 +1,19 @@
 #The following lines are for gfortran compilation with MKL libraries
-#FXX = gfortran -o2 -ffast-math -ffree-line-length-none -m64 #-fbacktrace
-#CXX = g++ -o2
-#MKLROOT     = /csm_data/hoy_group/intel/mkl
-#BLAS     =   -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_gf_lp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl
-#INC      = -I${MKLROOT}/include
-#LIB       = ${BLAS}
+FXX = gfortran -o2 -ffast-math -ffree-line-length-none -m64 #-fbacktrace
+CXX = g++ -o2
+MKLROOT     = /opt/app1/intel/oneapi/mkl/2024.1/
+BLAS     =   -L${MKLROOT}/lib -Wl,--no-as-needed -lmkl_gf_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
+INC      = -I${MKLROOT}/include
+LIB       = ${BLAS}
 
 #ifort commands(if -mkl does not work, try explicit links above)
-FXX       = ifort -O2 -axCORE-AVX2 -parallel -fPIC -mkl:parallel -static-intel -qopenmp-link static
-CXX       = g++
+#FXX       = ifort -O2 -axCORE-AVX2 -parallel -fPIC -mkl:parallel -static-intel -qopenmp-link static
+#CXX       = g++
 
 CWD       = $(shell pwd)
 OBJ       = $(CWD)/Object
 JMOD      = $(CWD)/JunctionMod
-EXEC      = RUQT_v1r.x
+EXEC      = RUQT.x
 
 
 main: $(EXEC) junctionmod

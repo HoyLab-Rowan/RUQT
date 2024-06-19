@@ -6,7 +6,7 @@
       implicit none
 
       real(8),allocatable,dimension(:,:) :: H_one,H_Two,OneInts,H_Two_le,H_Two_re,H_Two_cen,H_Two_le_trans,H_Two_re_trans
-      real(8), allocatable, dimension(:) :: TwoIntsCompact,transm,current,energy_list,mo_ener,B0_coeff
+      real(8), allocatable, dimension(:) :: TwoIntsCompact,transm,transm_curr,current,energy_list,mo_ener,B0_coeff
       real(8), allocatable, dimension(:,:) :: Smat_le,Smat_re,Smat_cen,Smat,coupling_mat,mo_coeff,mo_coeff2
       complex(8), allocatable, dimension(:,:) :: gfc_r,gfc_a,current_temp,Sigma_l,Sigma_r,Gamma_L,Gamma_R
       complex(8),allocatable,dimension(:) :: voltage
@@ -18,11 +18,13 @@
       integer :: i,j,k,counter,counter2,current_values,norb,numact,energy_val,volt_val,ioerror,numocc,numvirt
       character(len=40) :: ElectrodeType,CalcType,functional,inputcode,b0_type
       real(8) :: KT,current_con,Fermi_enl,Fermi_enR,localden_fermi,localden_fermi_l,localden_fermi_r,temp
+      real(8) :: fermi_l,fermi_r
       complex(8), allocatable, dimension(:,:) :: test
       type(B1) :: B1data,l1data
       type(B2) :: B2data,l2data
       type(energr) :: G_S
       real(8) :: time_start,time_end
+      integer :: state_num
 
       call cpu_time(time_start)
       invert=.true.
@@ -30,7 +32,7 @@
       write(*,*) "Just getting started"
       Call Get_Command_Argument(1,inputfile)
 
-      Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
+     Call ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,ElectrodeType,Fermi_enl,Fermi_enR,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
      write(*,*) "Input File Read"
      write(*,*) "Using the following parameters for the transport calculation"
      write(*,*) "Number of OpenMP Threads:",num_threads
@@ -45,6 +47,7 @@
      write(*,*) "Voltage Window and dV:",volt_start,volt_end,delta_volt
      write(*,*) "Fermi Density:",localden_fermi_l,localden_fermi_r
      write(*,*) "KT:",KT
+     write(*,*) "Transport Calculated for State ",state_num
       size_lc = size_l + size_c
       size_lcr = size_l + size_c + size_r
       libint=.false.
@@ -54,7 +57,7 @@
         write(*,*) 'Using Qchem data for this run'
         Call Get_HF_Qchem(inputfile,norb,H_Two,Smat)
        elseif(molcas.eqv..true.) then
-        Call Get_HF_Molcas(inputfile,norb,H_Two,Smat)
+        Call Get_HF_Molcas2("MolEl.dat",norb,H_Two,Smat,state_num)
        elseif(libint.eqv..true.) then
         Call Get_HF_libint(inputfile,norb,numact,H_one,Smat,mo_coeff,OneInts,TwoIntsCompact)
        elseif(gamess.eqv..true.) then
@@ -68,6 +71,7 @@
         write(*,*) "Using Maple+QuantumChemistry data for this run"
         Call Get_HF_PySCF(inputfile,numatomic,H_Two,Smat,norb)
        end if
+
       write(*,*) 'This run using:'
       if(rdm_flag.eqv..true.) then
         write(*,*) 'The Lehmann representation of a'
@@ -120,20 +124,22 @@
        allocate(current(1:current_values))
        allocate(voltage(1:current_values))
        allocate(transm(1:energy_val))
+       allocate(transm_curr(1:energy_val))
        allocate(current_temp(1:size_c,1:size_c))
+       allocate(energy_list(1:energy_val))
+       transm=0
+       transm_curr=0
+       current_temp=0
 
      
        energy = energy_start
        current_con = 2*1.6021766E-19*(4.135667E-15)**(-1)
        counter = 1
-    do j=1,volt_val
-       temp = (j-1)*delta_volt + volt_start
-       voltage(j) = temp
-       current(j) = 0
       do k=1,energy_val
           transm(k) = 0
+          current_temp=0
           energy = energy_start + (k-1)*delta_en
-          current_temp = 0
+          energy_list(k) = energy
          if((hf_flag.eqv..true.).or.(dft_flag.eqv..true.)) then
           gfc_r = 0
           gfc_a = 0
@@ -147,32 +153,82 @@
             Call Build_G_SD_Invert(gfc_r,Sigma_l,Sigma_r,energy,size_l,size_c,size_lc,size_lcr,norb,inputfile,numocc,numvirt,counter,B1data,B2data,mo_ener,mo_coeff,mo_coeff2,doubles,currentflag,energy_val,k,G_S,corr_ener,numatomic,B0_coeff,use_b0,gamess,maple,numfcore,numfvirt,b0_type)
             gfc_a = adjoint(gfc_r,size_c)
             counter=2
-
-
          end if
-
-
-          current_temp = matmul_zgemm(Gamma_R,gfc_a)
-          current_temp = matmul_zgemm(gfc_r,current_temp)
-          current_temp = matmul_zgemm(Gamma_L,current_temp)
-          do i=1,size_c
+         current_temp = matmul_zgemm(Gamma_R,gfc_a)
+         current_temp = matmul_zgemm(gfc_r,current_temp)
+         current_temp = matmul_zgemm(Gamma_L,current_temp)
+         do i=1,size_c
            transm(k) = transm(k) + real(current_temp(i,i))
-          end do
-          transm(k) = transm(k)*(fermi_function(energy-temp*0.5,fermi_enL,KT)-fermi_function(energy+temp*0.5,fermi_enR,KT))
          end do
-        currentflag=.true.
-        do k=1,energy_val
-         current(j) = current(j) + delta_en*current_con*transm(k)
-        end do
-        write(*,*) 'Done with current at voltage:',real(voltage(j))
+      end do
+    
+      do j=1,energy_val
+         write(*,*) 'Transm vs Energy curve',real(energy_list(j)),real(transm(j))
        end do
 
+       outfile = trim(inputfile) // ".negf_dat"
+       open(unit=7,file=outfile,action='write',iostat=ioerror)
+
+       write(7,*) energy_val
+       do j=1,energy_val
+         write(7,*) real(energy_list(j)),real(transm(j))
+       end do
+
+      ! close(7)
+
+     currentflag=.true.
+
+    do j=1,volt_val
+       temp = (j-1)*delta_volt + volt_start
+       voltage(j) = temp
+       current(j) = 0
+       transm_curr=0
+      do k=1,energy_val
+        !  transm(k) = 0
+          energy = energy_start + (k-1)*delta_en
+!          current_temp = 0
+!         if((hf_flag.eqv..true.).or.(dft_flag.eqv..true.)) then
+!          gfc_r = 0
+!          gfc_a = 0
+!          gfc_r = energy*Smat_cen-H_Two_cen
+!          gfc_r = gfc_r - Sigma_l - Sigma_r
+!          gfc_r = inv(gfc_r)
+!          gfc_a = adjoint(gfc_r,size_c)
+!         else if((cisd_flag.eqv..true.).or.(rdm_flag.eqv..true.)) then
+!            gfc_r = 0
+!            gfc_a = 0
+!            Call Build_G_SD_Invert(gfc_r,Sigma_l,Sigma_r,energy,size_l,size_c,size_lc,size_lcr,norb,inputfile,numocc,numvirt,counter,B1data,B2data,mo_ener,mo_coeff,mo_coeff2,doubles,currentflag,energy_val,k,G_S,corr_ener,numatomic,B0_coeff,use_b0,gamess,maple,numfcore,numfvirt,b0_type)
+!            gfc_a = adjoint(gfc_r,size_c)
+!            counter=2
+!
+!
+!          end if
+
+
+!          current_temp = matmul_zgemm(Gamma_R,gfc_a)
+!          current_temp = matmul_zgemm(gfc_r,current_temp)
+!          current_temp = matmul_zgemm(Gamma_L,current_temp)
+          !do i=1,size_c
+          ! transm(k) = transm(k) + real(current_temp(i,i))
+          !end do
+          fermi_l=fermi_function(energy-temp*0.5,fermi_enL,KT)
+          fermi_r=fermi_function(energy+temp*0.5,fermi_enR,KT)
+          !write(*,*) k,fermi_l,fermi_r
+          transm_curr(k) = transm(k)*(fermi_l-fermi_r)
+         end do
+         !write(*,*) temp,KT,transm_curr(1)
+        do k=1,energy_val
+         current(j) = current(j) + delta_en*current_con*transm_curr(k)
+        end do
+        !write(*,*) 'Done with current at voltage:',real(voltage(j))
+       end do
+       
        do j=1,volt_val
          write(*,*) 'IV curve',real(voltage(j)),real(current(j))
        end do
 
-       outfile = trim(inputfile) // ".dat"
-       open(unit=7,file=outfile,action='write',iostat=ioerror)
+       !outfile = trim(inputfile) // ".negf_dat"
+       !open(unit=7,file=outfile,action='append',iostat=ioerror)
 
        write(7,*) volt_val
        do j=1,volt_val
@@ -230,9 +286,10 @@
        do j=1,energy_val
          write(*,*) 'Transm vs Energy curve',real(energy_list(j)),real(transm(j))
        end do
-
-       outfile = trim(inputfile) // ".dat"
+ 
+       outfile = trim(inputfile) // ".negf_dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
+    
        write(7,*) energy_val
        do j=1,energy_val
          write(7,*) real(energy_list(j)),real(transm(j))
@@ -244,6 +301,7 @@
       else if(trim(ElectrodeType).eq."Molecule_WBL") then
        write(*,*) 'Using Molecule WBL Electrodes'
        write(*,*) "***This option only supports DFT/HF calcs and is outdated/buggy***"
+       write(*,*) "***Slated for removal and likely to be incorrect***"
        write(*,*) "***Use at own risk***"
        allocate(Sigma_l(1:norb,1:norb))
        allocate(Sigma_r(1:norb,1:norb))
@@ -274,6 +332,21 @@
        energy = energy_start
        current_con = 1.6021766E-19*4.135667E-15**(-1)
        counter = 1
+
+        current_temp = 0
+
+        gfc_r = 0
+        gfc_a = 0
+        gfc_r = energy*Smat-H_Two
+        gfc_r = gfc_r - Sigma_l - Sigma_r
+        gfc_r = inv(gfc_r)
+        gfc_a = adjoint(gfc_r,norb)
+
+        current_temp = matmul_zgemm(Gamma_R,gfc_a)
+        current_temp = matmul_zgemm(gfc_r,current_temp)
+        current_temp = matmul_zgemm(Gamma_L,current_temp)
+
+
     do j=1,volt_val
        temp = (j-1)*delta_volt + volt_start
        voltage(j) = temp
@@ -281,18 +354,18 @@
       do k=1,energy_val
           transm(k) = 0
           energy = energy_start + (k-1)*delta_en
-          current_temp = 0
+        !  current_temp = 0
 
-          gfc_r = 0
-          gfc_a = 0
-          gfc_r = energy*Smat-H_Two
-          gfc_r = gfc_r - Sigma_l - Sigma_r
-          gfc_r = inv(gfc_r)
-          gfc_a = adjoint(gfc_r,norb)
+        !  gfc_r = 0
+        !  gfc_a = 0
+        !  gfc_r = energy*Smat-H_Two
+        !  gfc_r = gfc_r - Sigma_l - Sigma_r
+        !  gfc_r = inv(gfc_r)
+        !  gfc_a = adjoint(gfc_r,norb)
 
-          current_temp = matmul_zgemm(Gamma_R,gfc_a)
-          current_temp = matmul_zgemm(gfc_r,current_temp)
-          current_temp = matmul_zgemm(Gamma_L,current_temp)
+         ! current_temp = matmul_zgemm(Gamma_R,gfc_a)
+         ! current_temp = matmul_zgemm(gfc_r,current_temp)
+         ! current_temp = matmul_zgemm(Gamma_L,current_temp)
 
           do i=1,norb
            transm(k) = transm(k) + real(current_temp(i,i))
@@ -309,9 +382,9 @@
          write(*,*) 'IV curve',real(voltage(j)),real(current(j))
        end do
 
-       outfile = trim(inputfile) // ".dat"
+       outfile = trim(inputfile) // ".negf_dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
-
+       write(7,*) volt_val
        do j=1,volt_val
          write(7,*) real(voltage(j)),real(current(j))
        end do
@@ -359,7 +432,7 @@
 
        outfile = trim(inputfile) // ".dat"
        open(unit=7,file=outfile,action='write',iostat=ioerror)
-       write(7,*) energy_val
+
        do j=1,energy_val
          write(7,*) real(energy_list(j)),real(transm(j))
        end do
@@ -428,7 +501,7 @@
       write(*,*) 'Done Getting HF Values'
       end subroutine
 
-      subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat)
+      subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat,state_num)
       !Use InterfaceMod
       implicit none
 
@@ -436,7 +509,8 @@
       real(8),allocatable,dimension(:,:) :: H_Two,Smat
       integer :: norb,ioerror,i,j,x,y
       real(8) :: readtemp
-
+      integer :: state_num
+      character(len=100) :: state_char
       20 format(A)
       !write(*,*) inputfile
       allocate(H_two(1:norb,1:norb))
@@ -457,7 +531,16 @@
       close(2)
 
        write(*,*) 'Start Fock Matrix'
-      datafile = "FOCK_AO"
+      
+      write(*,*) state_num
+      if(state_num.lt.10) then
+       write(state_char,"(I1)") state_num
+      else
+       write(state_char,"(I2)") state_num
+      end if
+
+      datafile = "FOCK_AO_"//trim(state_char)
+      write(*,*) datafile
       open(unit=3,file=datafile,action='READ', iostat = ioerror)
 
       do i=1,norb
@@ -470,6 +553,62 @@
       write(*,*) 'Done Getting HF Values'
       end subroutine
 
+      subroutine Get_HF_Molcas2(datafile,norb,H_two,Smat,state_num)
+      !Use InterfaceMod
+      implicit none
+
+      character(len=9) :: datafile
+      real(8),allocatable,dimension(:,:) :: H_Two,Smat
+      integer :: norb,ioerror,i,j,x,y
+      real(8) :: readtemp
+      integer :: state_num,num_states,norb_2,nelec_2,actorb,actel
+      character(len=100) :: state_char,readtemp_str
+      20 format(A)
+      !write(*,*) inputfile
+      allocate(H_two(1:norb,1:norb))
+      allocate(Smat(1:norb,1:norb))
+      H_two=0
+      Smat=0
+
+      open(unit=2,file=datafile,action='READ', iostat = ioerror)
+
+      read(2,*) readtemp_str
+      read(2,*) num_states,norb_2,nelec_2,actorb,actel
+      read(2,*) readtemp_str
+
+      if(norb_2.ne.norb) then
+        write(*,*) "Your orbital count is incorrect. Please check your input and MolEl.dat files"
+        stop
+       end if
+
+      do i=1,norb
+       do j=i,norb
+        read(2,*) x,y,readtemp
+         Smat(x,y)=readtemp
+         Smat(y,x)=readtemp
+       end do
+      end do
+
+      do while (trim(readtemp_str).ne."Effective")
+       read(2,*) readtemp_str
+      end do
+      
+      x=0
+      do while (trim(readtemp_str).ne."State".and.x.ne.state_num)
+       read(2,*) readtemp_str,x
+      end do
+
+      write(*,*) "Reading Fock Matrix for ",state_num
+
+      do i=1,norb
+       do j=1,norb
+        read(2,*) x,y,readtemp
+        H_Two(x,y)=readtemp
+       end do
+      end do
+      close(2)
+      write(*,*) 'Done Getting HF Values'
+      end subroutine
 
  
       
@@ -864,6 +1003,7 @@
 
               energydiff = energy - fermi_energy
               fermi_function = 1.00/(exp(energydiff/KT)+1)
+
               end function
 
               function inv(A) result(Ainv)
@@ -1024,14 +1164,15 @@
 
               end function CompositeIndex
 
-              subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type)
-              implicit none
-              character(len=100) :: inputfile
-              character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
-              integer :: norb, size_c,size_r,size_l,numfcore,numfvirt,numocc,numvirt,numatomic,num_threads
-              real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
-              logical :: libint,doubles,use_b0,write_ruqt_data
-              real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
+     subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
+     implicit none
+     character(len=100) :: inputfile
+     character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
+     integer :: norb, size_c,size_r,size_l,numfcore,numfvirt,numocc,numvirt,numatomic,num_threads
+     real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT
+     logical :: libint,doubles,use_b0,write_ruqt_data
+     real(8) :: Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
+     integer :: state_num
 
               filename = trim(inputfile)
               open(unit=1,file=filename,action="read")
@@ -1047,30 +1188,32 @@
               read(1,*) numatomic
               read(1,*) numfcore
               read(1,*) numfvirt
-                      read(1,*) numocc
-                      read(1,*) numvirt
-                      read(1,*) size_c
-                      read(1,*) size_l
-                      read(1,*) size_r
-                      read(1,*) energy_start
-                      read(1,*) energy_end
-                      read(1,*) delta_en
-                      read(1,*) volt_start
-                      read(1,*) volt_end
-                      read(1,*) delta_volt
-                      read(1,*) KT
-                      read(1,*) inputcode
-                      read(1,*) doubles
-                      read(1,*) functional
-                      read(1,*) use_b0
-                      read(1,*) b0_type
-                      read(1,*) write_ruqt_data
-                      read(1,*) num_threads
-                      close(1)
-                      if(num_threads.eq.0) then
-                       num_threads=1
-                      end if
-                      end subroutine 
+              read(1,*) numocc
+              read(1,*) numvirt
+              read(1,*) size_c
+              read(1,*) size_l
+              read(1,*) size_r
+              read(1,*) energy_start
+              read(1,*) energy_end
+              read(1,*) delta_en
+              read(1,*) volt_start
+              read(1,*) volt_end
+              read(1,*) delta_volt
+              read(1,*) KT
+              read(1,*) inputcode
+              read(1,*) doubles
+              read(1,*) functional
+              read(1,*) use_b0
+              read(1,*) b0_type
+              read(1,*) write_ruqt_data
+              read(1,*) num_threads
+              read(1,*) state_num
+                      
+              close(1)
+              if(num_threads.eq.0) then
+                 num_threads=1
+                end if
+              end subroutine 
 
                       subroutine Flag_set(inputcode,functional,cisd_flag,rdm_flag,hf_flag,dft_flag,qchem,gamess,pyscf,maple,molcas)
                       implicit none

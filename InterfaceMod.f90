@@ -16,13 +16,24 @@
        real(8), allocatable, dimension(:,:) :: H_Two,Smat
        end subroutine
 
-       subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat)
+       subroutine Get_HF_Molcas(inputfile,norb,H_two,Smat,state_num)
        implicit none
 
        character(len=100) :: inputfile
        integer :: norb
        real(8), allocatable, dimension(:,:) :: H_Two,Smat
+       integer :: state_num
        end subroutine
+
+       subroutine Get_HF_Molcas2(datafile,norb,H_two,Smat,state_num)
+       implicit none
+
+       character(len=9) :: datafile
+       integer :: norb
+       real(8), allocatable, dimension(:,:) :: H_Two,Smat
+       integer :: state_num
+       end subroutine
+
 
        subroutine Get_HF_GAMESS(inputfile,numatomic,H_two,Smat,norb)
        implicit none
@@ -92,12 +103,12 @@
       character(len=100) :: inputfile
       end subroutine
 
-      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data)
+      subroutine ReadInput(inputfile,norb,numfcore,numfvirt,numocc,numvirt,size_l,size_r,size_c,energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,inputcode,KT,Electrode_Type,Fermi_enl,Fermi_enr,CalcType,localden_fermi_l,localden_fermi_r,doubles,numatomic,functional,num_threads,use_b0,b0_type,write_ruqt_data,state_num)
       implicit none
 
       character(len=100) :: inputfile
       character(len=40) :: inputcode,filename,Electrode_Type,CalcType,functional,b0_type
-      integer :: norb,size_c,size_r,size_l,numfvirt,numfcore,numocc,numvirt,numatomic,num_threads
+      integer :: norb,size_c,size_r,size_l,numfvirt,numfcore,numocc,numvirt,numatomic,num_threads,state_num
       real(8) :: energy_start,energy_end,delta_en,volt_start,volt_end,delta_volt,KT,Fermi_enl,Fermi_enr,localden_fermi_l,localden_fermi_r
       logical :: libint,doubles,rdm,use_b0,write_ruqt_data
       end subroutine
