@@ -1,8 +1,8 @@
 #The following lines are for gfortran compilation with MKL libraries
 FXX = gfortran -o2 -ffast-math -ffree-line-length-none -m64 #-fbacktrace
 CXX = g++ -o2
-MKLROOT     = /opt/app1/intel/compilers_and_libraries_2019.4.243/linux/mkl
-BLAS     =   -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_gf_lp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl -llapack -lblas
+MKLROOT     = /opt/app1/intel/oneapi/mkl/2024.1/
+BLAS     =   -L${MKLROOT}/lib -Wl,--no-as-needed -lmkl_gf_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 INC      = -I${MKLROOT}/include
 LIB       = ${BLAS}
 
