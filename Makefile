@@ -2,7 +2,7 @@
 FXX = gfortran -o2 -ffast-math -ffree-line-length-none -m64 #-fbacktrace
 CXX = g++ -o2
 MKLROOT     = /opt/app1/intel/oneapi/mkl/2024.1/
-BLAS     =   -L${MKLROOT}/lib -Wl,--no-as-needed -lmkl_gf_ilp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
+BLAS     =   -m64  -L${MKLROOT}/lib -Wl,--no-as-needed -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 INC      = -I${MKLROOT}/include
 LIB       = ${BLAS}
 
